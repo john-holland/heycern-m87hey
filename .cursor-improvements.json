@@ -1,0 +1,146 @@
+{
+    "improvement_areas": [
+        {
+            "name": "spectral_accuracy",
+            "description": "Improve spectral data accuracy and resolution",
+            "target_files": ["data_fetcher.py"],
+            "metrics": [
+                "spectral_resolution",
+                "wavelength_coverage",
+                "absorption_feature_accuracy",
+                "data_granularity",
+                "light_perception_accuracy"
+            ]
+        },
+        {
+            "name": "lensing_accuracy",
+            "description": "Enhance gravitational lensing calculations",
+            "target_files": ["lensing_processor.py"],
+            "metrics": [
+                "deflection_angle_accuracy",
+                "magnification_accuracy",
+                "shear_effect_accuracy",
+                "light_path_tracking",
+                "solar_object_interaction"
+            ]
+        },
+        {
+            "name": "visualization_quality",
+            "description": "Improve visualization quality and scientific accuracy",
+            "target_files": ["ml_enhancer.py"],
+            "metrics": [
+                "image_resolution",
+                "color_accuracy",
+                "scientific_detail",
+                "light_perception_quality",
+                "data_granularity_visualization"
+            ]
+        }
+    ],
+    "improvement_rules": {
+        "spectral_accuracy": {
+            "min_wavelength_resolution": 0.01,
+            "required_absorption_features": [
+                "CO2",
+                "H2O",
+                "O2",
+                "CH4",
+                "N2",
+                "Ar",
+                "Ne",
+                "He"
+            ],
+            "wavelength_range": [100, 2500],
+            "data_granularity": {
+                "min_samples_per_nm": 100,
+                "temporal_resolution": "1ms",
+                "spatial_resolution": "0.1arcsec"
+            },
+            "light_perception": {
+                "min_photon_count": 1000,
+                "detection_threshold": "1e-18 erg/s/cm2",
+                "background_subtraction": true
+            }
+        },
+        "lensing_accuracy": {
+            "min_deflection_accuracy": 0.0001,
+            "required_effects": [
+                "gravitational_deflection",
+                "magnification",
+                "shear",
+                "convergence",
+                "light_path_tracking",
+                "solar_object_interaction"
+            ],
+            "light_path_tracking": {
+                "min_path_points": 1000,
+                "interaction_points": 100,
+                "temporal_resolution": "1ms"
+            }
+        },
+        "visualization_quality": {
+            "min_resolution": [4096, 4096],
+            "color_depth": 32,
+            "required_elements": [
+                "spectral_data",
+                "atmospheric_effects",
+                "surface_features",
+                "light_paths",
+                "solar_object_interactions"
+            ],
+            "light_perception": {
+                "dynamic_range": "16 stops",
+                "color_gamut": "DCI-P3",
+                "hdr_capability": true
+            }
+        }
+    },
+    "automated_improvements": {
+        "enabled": true,
+        "commit_message_template": "Improve {area}: {description}",
+        "review_threshold": 0.8,
+        "max_improvements_per_run": 3
+    },
+    "community_sharing": {
+        "enabled": true,
+        "platforms": ["github", "pbs_spacetime", "cern", "nsf"],
+        "format": "scientific_visualization",
+        "metadata": {
+            "license": "MIT",
+            "attribution": "M87 Gravitational Lensing Project",
+            "contact": "cursor-community@example.com"
+        },
+        "mailing_lists": {
+            "weekly_report": [
+                "cern-physics@cern.ch",
+                "pbs-spacetime@example.com",
+                "nsf-astronomy@nsf.gov"
+            ]
+        }
+    },
+    "monitoring": {
+        "datadog": {
+            "enabled": true,
+            "metrics": [
+                "spectrometer_data_accuracy",
+                "light_path_tracking",
+                "data_granularity",
+                "visualization_quality"
+            ],
+            "alerts": {
+                "threshold": 0.9,
+                "notification_channels": ["email", "slack"]
+            }
+        }
+    },
+    "printing": {
+        "enabled": true,
+        "printer_service": "wb_mason",
+        "job_server": "openshift",
+        "paper_size": "A3",
+        "color_mode": "true_color",
+        "resolution": "2400dpi",
+        "auto_refill": true,
+        "notification_email": "printer-status@example.com"
+    }
+} 

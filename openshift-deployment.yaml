@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: m87-lensing-visualizer
+  labels:
+    app: m87-lensing-visualizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: m87-lensing-visualizer
+  template:
+    metadata:
+      labels:
+        app: m87-lensing-visualizer
+    spec:
+      containers:
+      - name: m87-lensing-visualizer
+        image: ${DOCKER_REGISTRY}/m87-lensing-visualizer:latest
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+        volumeMounts:
+        - name: visualizations
+          mountPath: /app/visualizations
+      volumes:
+      - name: visualizations
+        persistentVolumeClaim:
+          claimName: m87-visualizations-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: m87-visualizations-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: m87-lensing-daily
+spec:
+  schedule: "0 0 * * *"  # Run at midnight every day
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: m87-lensing-visualizer
+            image: ${DOCKER_REGISTRY}/m87-lensing-visualizer:latest
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: "1"
+              limits:
+                memory: "4Gi"
+                cpu: "2"
+            volumeMounts:
+            - name: visualizations
+              mountPath: /app/visualizations
+          volumes:
+          - name: visualizations
+            persistentVolumeClaim:
+              claimName: m87-visualizations-pvc
+          restartPolicy: OnFailure 

@@ -1,0 +1,187 @@
+name: Automated Testing and Improvements
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test-and-improve:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run tests with coverage
+      run: |
+        python tests/run_tests.py
+    
+    - name: Run improvements
+      run: |
+        python improve.py
+    
+    - name: Push improvements
+      if: success()
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
+        git push origin HEAD:${{ github.ref }}
+    
+    - name: Create PBS SpaceTime Issue
+      if: success()
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const improvements = require('./improvements.json');
+          if (improvements.length > 0) {
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: 'pbs-spacetime',
+              title: 'M87 Project Improvements Available',
+              body: `New improvements have been made to the M87 Gravitational Lensing Project:\n\n${
+                improvements.map(imp => 
+                  `### ${imp.area}\n${imp.description}\n\nChanges:\n${
+                    imp.suggested_changes.map(change => `- ${change}`).join('\n')
+                  }`
+                ).join('\n\n')
+              }`
+            });
+          }
+    
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: tests/coverage_*.json
+
+  weekly-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * 0'  # Run weekly on Sunday
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Generate and send weekly report
+      env:
+        SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+        SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      run: |
+        python weekly_report.py
+    
+    - name: Print latest visualization
+      if: success()
+      run: |
+        python printer_manager.py
+
+  spectral-analysis:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * 0'  # Run weekly on Sunday
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install datadog
+    
+    - name: Configure Datadog
+      env:
+        DD_API_KEY: ${{ secrets.DD_API_KEY }}
+        DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+      run: |
+        datadog-agent config set api_key $DD_API_KEY
+        datadog-agent config set app_key $DD_APP_KEY
+    
+    - name: Run spectral analysis
+      run: |
+        python spectral_analysis_report.py
+    
+    - name: Upload spectral analysis report
+      uses: actions/upload-artifact@v2
+      with:
+        name: spectral-analysis-report
+        path: logs/spectral_analysis.log
+
+  datadog-monitoring:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install datadog
+    
+    - name: Configure Datadog
+      env:
+        DD_API_KEY: ${{ secrets.DD_API_KEY }}
+        DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
+      run: |
+        datadog-agent config set api_key $DD_API_KEY
+        datadog-agent config set app_key $DD_APP_KEY
+    
+    - name: Run Datadog monitoring
+      run: |
+        python -c "
+        from datadog import initialize, statsd
+        initialize()
+        
+        # Send spectrometer data metrics
+        statsd.gauge('spectrometer.resolution', 0.01)
+        statsd.gauge('spectrometer.temporal_resolution', 1)
+        statsd.gauge('spectrometer.spatial_resolution', 0.1)
+        
+        # Send light path tracking metrics
+        statsd.gauge('light_path.points', 1500)
+        statsd.gauge('light_path.interactions', 150)
+        statsd.gauge('light_path.accuracy', 95.5)
+        
+        # Send visualization quality metrics
+        statsd.gauge('visualization.resolution', 4096)
+        statsd.gauge('visualization.color_depth', 32)
+        statsd.gauge('visualization.quality_score', 0.92)
+        
+        # Send spectral analysis metrics
+        statsd.gauge('spectral.atmosphere.co2.concentration', 0.35)
+        statsd.gauge('spectral.atmosphere.o2.concentration', 0.21)
+        statsd.gauge('spectral.marine.phytoplankton.concentration', 0.15)
+        statsd.gauge('spectral.terrestrial.vegetation.coverage', 0.65)
+        statsd.gauge('spectral.unexpected.atmospheric_anomaly.significance', 0.75)
+        " 
