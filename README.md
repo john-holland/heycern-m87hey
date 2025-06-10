@@ -99,3 +99,6 @@ The default configuration:
 - Runs daily at midnight
 - Uses 2GB memory and 1 CPU core
 - Stores visualizations in a 10GB persistent volume 
+
+**Credits:**
+This project benefited from AI code assistance by [Cursor](https://www.cursor.com/). 
